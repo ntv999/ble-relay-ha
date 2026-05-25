@@ -15,6 +15,7 @@ RUN apk add --no-cache \
     py3-pip \
     bluez \
     bluez-dev \
+    bluez-deprecated \
     dbus \
     dbus-dev \
     musl-dev \
