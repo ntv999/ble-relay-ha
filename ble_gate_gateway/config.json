@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "slug": "ble_gate_gateway",
   "description": "BLE → MQTT gateway for nRF52840 gate and barrier controllers",
-  "url": "https://github.com/your-org/ble_ha_gate",
+  "url": "https://github.com/ntv999/ble-relay-ha",
   "arch": ["aarch64", "amd64"],
   "startup": "application",
   "boot": "auto",
@@ -48,6 +48,5 @@
         "discover_name": "str?"
       }
     ]
-  },
-  "image": "ghcr.io/your-org/ble-gate-gateway/{arch}"
+  }
 }

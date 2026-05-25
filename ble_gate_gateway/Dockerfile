@@ -1,6 +1,14 @@
 ARG BUILD_FROM=ghcr.io/home-assistant/aarch64-base-python:3.12
 FROM ${BUILD_FROM}
 
+ARG BUILD_ARCH
+ARG BUILD_VERSION
+
+LABEL \
+    io.hass.version="${BUILD_VERSION}" \
+    io.hass.type="addon" \
+    io.hass.arch="${BUILD_ARCH}"
+
 # Install BlueZ and dbus dependencies
 RUN apk add --no-cache \
     bluez \
