@@ -13,36 +13,33 @@ PAIR_ADDRESS=$(bashio::config 'pair_address' '')
 PAIR_NAME=$(bashio::config 'pair_name' '')
 LOG_LEVEL=$(bashio::config 'log_level' 'info')
 
-# ── Bring up Bluetooth adapter ───────────────────────────────────────────────
-bring_up_adapter() {
+# ── Bluetooth adapter probe ──────────────────────────────────────────────────
+try_bring_up_adapter() {
     local adapter="$1"
     local index="${adapter#hci}"
 
     if command -v hciconfig >/dev/null 2>&1; then
-        hciconfig "${adapter}" up
-        return $?
+        hciconfig "${adapter}" up && return 0
+        bashio::log.warning "hciconfig cannot control ${adapter}; will rely on host BlueZ"
     fi
 
     if command -v btmgmt >/dev/null 2>&1; then
-        btmgmt --index "${index}" power on
-        return $?
+        btmgmt --index "${index}" power on && return 0
+        bashio::log.warning "btmgmt cannot control ${adapter}; will rely on host BlueZ"
     fi
 
     if command -v bluetoothctl >/dev/null 2>&1; then
-        bluetoothctl power on
-        return $?
+        bluetoothctl power on && return 0
+        bashio::log.warning "bluetoothctl power on failed; will rely on host BlueZ"
     fi
 
-    bashio::log.warning "No Bluetooth adapter control tool found; continuing anyway"
-    return 0
+    return 1
 }
 
-bashio::log.info "Bringing up BLE adapter ${BLE_ADAPTER}..."
-bring_up_adapter "${BLE_ADAPTER}" || {
-    bashio::log.warning "Adapter ${BLE_ADAPTER} setup failed, trying hci0..."
-    BLE_ADAPTER="hci0"
-    bring_up_adapter hci0
-}
+bashio::log.info "Preparing BLE adapter ${BLE_ADAPTER}..."
+if ! try_bring_up_adapter "${BLE_ADAPTER}"; then
+    bashio::log.warning "Adapter power-up skipped/failed; continuing via host D-Bus"
+fi
 
 if [ "${MODE}" = "scan" ]; then
     bashio::log.info "Scanning BLE devices on ${BLE_ADAPTER} for ${BLE_SCAN_TIMEOUT}s..."
